@@ -1,0 +1,171 @@
+---
+title: "Legacy theming with bslib and thematic"
+output: 
+  html_document:
+    code_folding: show
+    theme:
+      bg: "#202123"
+      fg: "#B8BCC2"
+      primary: "#EA80FC"
+      base_font:
+        google: Prompt
+      heading_font:
+        google: Proza Libre
+      version: 3
+---
+
+
+#Installing packages needed for functions to be performed 
+```{r, echo=TRUE}
+#install.packages("ranger")
+#install.packages("caret")
+#install.packages("data.table")
+#install.packages("readr")
+#install.packages("caTools")
+#install.packages("rpart.plot")
+#install.packages("neuralnet")
+#install.packages("gbm")
+#install.packages("pROC")
+#install.packages("tidyverse")
+#install.packages("readxl")
+```
+#1. calling packages needed (Importing, loading, and saving the data set)
+```{r, echo=TRUE}
+library(ranger)
+library(caret)
+library(data.table)
+library(readxl)
+nfl_latest <- read_excel("nfl_elo_latest.xlsx")
+View(nfl_latest)
+summary(nfl_latest)
+```
+#2. Cleaning the data set
+```{r, echo=TRUE}
+#install.packages("dplyr")
+```
+
+#removing "playoff" column because it is filled with all N/A values
+```{r, echo=TRUE}
+new_df <- subset(nfl_latest, select = -c(playoff))
+```
+
+#renaming all columns to make them easier to acccess 
+```{r, echo=TRUE}
+rename(new_df, elo1pre = elo1_pre, elo2pre = elo2_pre, eloprob1 = elo_prob1, eloprob2 = elo_prob2, elo1post = elo1_post, elo2post = elo2_post, qbelo1pre = qbelo1_pre, qbelo2pre = qbelo2_pre, qb1valuepost = qb1_value_post, qb2valuepost = qb2_value_post, qb1adj = qb1_adj, qb2adj = qb2_adj, qbeloprob1 = qbelo_prob1, qbeloprob2 = qbelo_prob2, qb1gamevalue = qb1_game_value, qb2gamevalue = qb2_game_value, qbelo1post = qbelo1_post, qbelo2post = qbelo2_post)
+```
+
+
+#omiting all NA values in dataset
+```{r, echo=TRUE}
+head(new_df)
+```
+```{r, echo=TRUE}
+new_df_omit <- na.omit(new_df)
+
+head(new_df_omit)
+```
+
+#identifying outliers in data set through creating a box plot for each variable
+```{r, echo=TRUE}
+boxplot(new_df_omit$elo_prob1,
+  ylab = "hwy"
+)
+```
+
+```{r, echo=TRUE}
+boxplot(new_df_omit$elo2_pre,
+  ylab = "hwy"
+)
+```
+
+#There is an outlier in this column of data set as you can see through the box plot. 
+```{r, echo=TRUE}
+boxplot(new_df_omit$elo_prob2,
+  ylab = "hwy"
+)
+```
+```{r, echo=TRUE}
+boxplot(new_df_omit$elo1_post,
+  ylab = "hwy"
+)
+```
+#there is an outlier in this column of the data set as you see the dot far away from the box. 
+```{r, echo=TRUE}
+boxplot(new_df_omit$qbelo1_pre,
+  ylab = "hwy"
+)
+```
+#there is an outlier in this column of the data set because there is a dot way above the rest of the box.
+```{r, echo=TRUE}
+boxplot(new_df_omit$elo_prob2,
+  ylab = "hwy"
+)
+```
+
+
+```{r, echo=TRUE}
+boxplot(new_df_omit$qbelo2_pre,
+  ylab = "hwy"
+)
+```
+
+#there is an outlier in this column of the data set as you can see there is a dot below the box in the plot. 
+```{r, echo=TRUE}
+boxplot(new_df_omit$qb1_value_pre,
+  ylab = "hwy"
+)
+```
+
+```{r, echo=TRUE}
+boxplot(new_df_omit$qb1_value_post,
+  ylab = "hwy"
+)
+```
+
+#This column has an outlier as the dot is way below the box in the pot. 
+```{r, echo=TRUE}
+boxplot(new_df_omit$qb2_value_post,
+  ylab = "hwy"
+)
+```
+
+
+#There are many outliers in the column of the data set as you can see the multiple dots outside of the box in the plot. 
+```{r, echo=TRUE}
+boxplot(new_df_omit$qb2_adj,
+  ylab = "hwy"
+)
+```
+
+
+```{r, echo=TRUE}
+boxplot(new_df_omit$qbelo_prob1,
+  ylab = "hwy"
+)
+```
+
+
+```{r, echo=TRUE}
+boxplot(new_df_omit$qbelo_prob2,
+  ylab = "hwy"
+)
+```
+
+
+#This column has an outlier that is well below the box shown in the plot below. 
+```{r, echo=TRUE}
+boxplot(new_df_omit$qbelo1_post,
+  ylab = "hwy"
+)
+```
+
+
+```{r, echo=TRUE}
+boxplot(new_df_omit$qbelo2_post,
+  ylab = "hwy"
+)
+```
+
+
+#I decided to keep the outliers rather than replacing them with with the mean of the column or just completely deleting them. I did this because I think it is important to factor outiers into anlaysis. It may not be a data entry error and could just represent the variety of the natural data collected. 
+
